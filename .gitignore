@@ -1,0 +1,4 @@
+.venv/
+game/__pycache__/
+output.txt
+tmp.h5
