@@ -9,7 +9,7 @@ https://yanpanlau.github.io/2016/07/10/FlappyBird-Keras.html
 ![](animation1.gif)
 
 # Installation Dependencies:
-
+* tested on Python 3.6.8, and it should work on Python 3.6+
 * see req.txt
 
 # How to Run?
