@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
+import os
+os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
+
+from datetime import datetime
+
 import argparse
 import skimage as skimage
 from skimage import transform, color, exposure
@@ -27,7 +32,7 @@ CONFIG = 'nothreshold'
 ACTIONS = 2 # number of valid actions
 GAMMA = 0.99 # decay rate of past observations
 OBSERVATION = 3200. # timesteps to observe before training
-EXPLORE = 3000000. # frames over which to anneal epsilon
+EXPLORE = 30000. # 3000000. # frames over which to anneal epsilon
 FINAL_EPSILON = 0.0001 # final value of epsilon
 INITIAL_EPSILON = 0.1 # starting value of epsilon
 REPLAY_MEMORY = 50000 # number of previous transitions to remember
@@ -52,7 +57,7 @@ def buildmodel():
     model.add(Dense(512))
     model.add(Activation('relu'))
     model.add(Dense(2))
-   
+
     adam = Adam(lr=LEARNING_RATE)
     model.compile(loss='mse',optimizer=adam)
     print("We finish building the model")
@@ -82,7 +87,7 @@ def trainNetwork(model,args):
     #In Keras, need to reshape
     s_t = s_t.reshape(1, s_t.shape[0], s_t.shape[1], s_t.shape[2])  #1*80*80*4
 
-    
+
 
     if args['mode'] == 'Run':
         OBSERVE = 999999999    #We keep observe, never train
@@ -91,7 +96,7 @@ def trainNetwork(model,args):
         model.load_weights("model.h5")
         adam = Adam(lr=LEARNING_RATE)
         model.compile(loss='mse',optimizer=adam)
-        print ("Weight load successfully")    
+        print ("Weight load successfully")
     else:                       #We go to training mode
         OBSERVE = OBSERVATION
         epsilon = INITIAL_EPSILON
@@ -172,7 +177,8 @@ def trainNetwork(model,args):
         else:
             state = "train"
 
-        print("TIMESTEP", t, "/ STATE", state, \
+        now = datetime.now()
+        print(now, "TIMESTEP", t, "/ STATE", state, \
             "/ EPSILON", epsilon, "/ ACTION", action_index, "/ REWARD", r_t, \
             "/ Q_MAX " , np.max(Q_sa), "/ Loss ", loss)
 
@@ -190,9 +196,10 @@ def main():
     playGame(args)
 
 if __name__ == "__main__":
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    sess = tf.Session(config=config)
-    from keras import backend as K
-    K.set_session(sess)
+    # config = tf.compat.v1.ConfigProto()
+    # # tf.compat.v1.Session()
+    # config.gpu_options.allow_growth = True
+    # sess = tf.compat.v1.Session(config=config)
+    # from keras import backend as K
+    # tf.compat.v1.keras.backend.set_session(sess)
     main()
